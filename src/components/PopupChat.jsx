@@ -145,9 +145,9 @@ export default function PopupChat({
                             <p className="text-md text-blue-600 font-semibold mb-0 leading-tight">
                               {chat.groupName}
                             </p>
-                              <span className="text-xs text-gray-500 ml-6">
-                                {chat.datetime}
-                              </span>
+                            <span className="text-xs text-gray-500 ml-6">
+                              {chat.datetime}
+                            </span>
                           </div>
                         )}
                         <div className="flex items-center">
@@ -176,9 +176,14 @@ export default function PopupChat({
             Object.entries(groupMessagesByDate(selectedChat.messages)).map(
               ([date, messages]) => (
                 <div key={date}>
-                  <div className="text-center text-xs text-gray-400 my-4">
-                    {date}
+                  <div className="flex items-center my-4">
+                    <div className="flex-grow border-t border-gray-400" />
+                    <span className="px-4 text-md font-semibold text-gray-900 whitespace-nowrap">
+                      {date}
+                    </span>
+                    <div className="flex-grow border-t border-gray-900" />
                   </div>
+
                   {messages.map((msg, index) => (
                     <Message
                       key={index}
