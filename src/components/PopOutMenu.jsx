@@ -6,16 +6,28 @@ import Button from "./Button";
 import PopupChat from "./PopupChat";
 import TaskPopup from "./TaskPopup";
 
-const taskData = [
-  { text: "Selesaikan desain UI", done: false },
-  { text: "Push ke GitHub", done: true },
-];
+
 
 export default function PopOutMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [activePopup, setActivePopup] = useState(null);
   const [selectedChat, setSelectedChat] = useState(null);
   const [isClosing, setIsClosing] = useState(false);
+
+  const [tasks, setTasks] = useState([
+    {
+      text: "Set up appointment with Dr. Blake",
+      done: false,
+      date: "22/06/2021",
+      description: "No Description",
+    },
+    {
+      text: "Close off Case #012920 - RODRIGUES, Amiguel",
+      done: true,
+      date: "12/06/2021",
+      description: "Case closed due to cancellation.",
+    },
+  ]);
 
   const handleClose = () => {
     if (isClosing) return;
@@ -95,7 +107,8 @@ export default function PopOutMenu() {
             <TaskPopup
               key="popup-task"
               title="Task"
-              tasks={taskData}
+              tasks={tasks}
+              setTasks={setTasks} // <-- penting ini
               onClose={handleClose}
             />
           )}

@@ -12,16 +12,19 @@ const chatData = [
         sender: "Leanne Graham",
         text: "laudantium enim quasi est quidem magnam",
         time: "08:00",
+        color: "#f59e0b"
       },
       {
         sender: "Ervin Howell",
         text: "quo et expedita modi cum officia vel magni",
         time: "08:01",
+        color: "#10b981"
       },
       {
         sender: "Clementine Bauch",
         text: "et quia ad iste a",
         time: "08:02",
+        color: "#3b82f6"
       },
     ],
   },

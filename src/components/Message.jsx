@@ -1,6 +1,6 @@
 import OptionsMenu from "./OptionsMenu";
 
-export default function Message({ message, onEdit, onDelete }) {
+export default function Message({ message, onEdit, onDelete, bubbleColor }) {
   const isYou = message.sender === "You";
 
   return (
@@ -8,7 +8,7 @@ export default function Message({ message, onEdit, onDelete }) {
       <div
         className={`text-sm font-semibold mb-1 ${
           isYou
-            ? "text-right pr-2 text-[#9B51E0] "
+            ? "text-right pr-2 text-[#9B51E0]"
             : "text-left pl-2 text-[#E5A443]"
         }`}
       >
@@ -17,8 +17,9 @@ export default function Message({ message, onEdit, onDelete }) {
 
       <div
         className={`group relative px-3 py-2 rounded-lg text-sm ${
-          isYou ? "bg-[#EEDCFF] text-black ml-auto" : "bg-[#FCEED3] text-black"
+          isYou ? "ml-auto" : ""
         }`}
+        style={{ backgroundColor: bubbleColor || (isYou ? "#EEDCFF" : "#FCEED3"), color: "black" }}
       >
         <p>{message.text}</p>
         <span className="block text-xs text-black mt-1">{message.time}</span>
@@ -34,3 +35,4 @@ export default function Message({ message, onEdit, onDelete }) {
     </div>
   );
 }
+
