@@ -31,24 +31,28 @@ export default function OptionsMenu({ onEdit, onDelete }) {
             transition={{ duration: 0.15, ease: "easeOut" }}
             className="absolute right-0 z-10 mt-1 w-28 bg-white border border-gray-300 rounded shadow-md text-sm overflow-hidden"
           >
-            <button
-              onClick={() => {
-                onEdit?.();
-                setOpen(false);
-              }}
-              className="block w-full px-4 py-2 hover:bg-gray-100 text-left text-blue-500 border-b border-gray-300"
-            >
-              Edit
-            </button>
-            <button
-              onClick={() => {
-                onDelete?.();
-                setOpen(false);
-              }}
-              className="block w-full px-4 py-2 hover:bg-red-100 text-left text-red-600"
-            >
-              Delete
-            </button>
+            {onEdit && (
+              <button
+                onClick={() => {
+                  onEdit();
+                  setOpen(false);
+                }}
+                className="block w-full px-4 py-2 hover:bg-gray-100 text-left text-blue-500 border-b border-gray-300"
+              >
+                Edit
+              </button>
+            )}
+            {onDelete && (
+              <button
+                onClick={() => {
+                  onDelete();
+                  setOpen(false);
+                }}
+                className="block w-full px-4 py-2 hover:bg-red-100 text-left text-red-600"
+              >
+                Delete
+              </button>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

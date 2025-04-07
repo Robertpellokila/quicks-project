@@ -19,12 +19,15 @@ export default function PopOutMenu() {
   const handleClose = () => {
     if (isClosing) return;
     setIsClosing(true);
+    setSelectedChat(null);
+
     setTimeout(() => {
       if (activePopup === "inbox") setSelectedChat(null);
       setActivePopup(null);
       setIsClosing(false);
     }, 100);
   };
+
   
 
   return (

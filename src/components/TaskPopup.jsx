@@ -158,7 +158,6 @@ export default function TaskPopup() {
                       )}
                     </button>
                     <OptionsMenu
-                      onEdit={() => {}}
                       onDelete={() => handleDelete(task.id)}
                     />
                   </div>

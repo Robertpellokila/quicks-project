@@ -261,7 +261,7 @@ export default function PopupChat({
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
               placeholder="Type a new message"
-              className="flex-1 px-3 py-2 border rounded-lg outline-none text-sm"
+              className="flex-1 px-3 py-2 border rounded-lg outline-none text-sm relative z-20"
             />
             <button
               onClick={handleSend}
