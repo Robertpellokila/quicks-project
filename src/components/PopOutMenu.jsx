@@ -14,30 +14,18 @@ export default function PopOutMenu() {
   const [selectedChat, setSelectedChat] = useState(null);
   const [isClosing, setIsClosing] = useState(false);
 
-  const [tasks, setTasks] = useState([
-    {
-      text: "Set up appointment with Dr. Blake",
-      done: false,
-      date: "22/06/2021",
-      description: "No Description",
-    },
-    {
-      text: "Close off Case #012920 - RODRIGUES, Amiguel",
-      done: true,
-      date: "12/06/2021",
-      description: "Case closed due to cancellation.",
-    },
-  ]);
+  const [tasks, setTasks] = useState(null);
 
   const handleClose = () => {
     if (isClosing) return;
     setIsClosing(true);
     setTimeout(() => {
+      if (activePopup === "inbox") setSelectedChat(null);
       setActivePopup(null);
-      setSelectedChat(null);
       setIsClosing(false);
     }, 100);
   };
+  
 
   return (
     <div className="relative h-screen flex items-center justify-center bg-gray-900">

@@ -224,8 +224,12 @@ export default function PopupChat({
                       <Message
                         key={index}
                         message={msg}
-                        bubbleColor={!isMe && msg.BubbleColor ? msg.BubbleColor : undefined}
-                        textColor={!isMe && msg.TextColor ? msg.TextColor : undefined}
+                        bubbleColor={
+                          !isMe && msg.BubbleColor ? msg.BubbleColor : undefined
+                        }
+                        textColor={
+                          !isMe && msg.TextColor ? msg.TextColor : undefined
+                        }
                         onEdit={() => handleEditMessage(index)}
                         onDelete={() => handleDeleteMessage(index)}
                       />
@@ -250,7 +254,7 @@ export default function PopupChat({
 
         {/* INPUT */}
         {selectedChat && (
-          <div className="border-t p-3 flex items-center gap-2">
+          <div className="border-t p-3 flex items-center gap-2 relative z-10">
             <input
               type="text"
               value={newMessage}
