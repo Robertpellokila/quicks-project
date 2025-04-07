@@ -1,106 +1,244 @@
-import { useState } from "react";
-import PopupBox from "./PopupBox";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { formatDistanceToNowStrict, format } from "date-fns";
+import {
+  ChevronDown,
+  ChevronUp,
+  Calendar,
+  Trash2,
+  Pencil,
+  Clock,
+  Pen,
+} from "lucide-react";
 import OptionsMenu from "./OptionsMenu";
-import { CalendarDays, Pencil } from "lucide-react";
+import PopupBox from "./PopupBox";
+import { taskGroups } from "../data/taskData";
 
-export default function TaskPopup({ tasks, setTasks, onClose }) {
-  const handleToggleDone = (index) => {
-    const updated = [...tasks];
-    updated[index].done = !updated[index].done;
-    setTasks(updated);
+function LoadingSpinner() {
+  return (
+    <div className="flex justify-center items-center h-full py-10">
+      <div className="flex flex-col items-center space-y-2 text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500" />
+        <p className="text-sm text-gray-600">Loading Task List...</p>
+      </div>
+    </div>
+  );
+}
+
+export default function TaskPopup() {
+  const [selectedGroup, setSelectedGroup] = useState("my-tasks");
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedTaskIds, setExpandedTaskIds] = useState([]);
+  const [newTask, setNewTask] = useState({
+    title: "",
+    dueDate: "",
+    description: "",
+  });
+  const [showForm, setShowForm] = useState(false);
+  const [completedTaskIds, setCompletedTaskIds] = useState([]);
+
+  useEffect(() => {
+    setLoading(true);
+    const timeout = setTimeout(() => {
+      const group = taskGroups.find((g) => g.id === selectedGroup);
+      setTasks(group?.tasks || []);
+      setLoading(false);
+    }, 800);
+    return () => clearTimeout(timeout);
+  }, [selectedGroup]);
+
+  const toggleExpand = (id) => {
+    setExpandedTaskIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
   };
 
-  const handleEdit = (index) => {
-    const newText = prompt("Edit task:", tasks[index].text);
-    if (newText !== null) {
-      const updated = [...tasks];
-      updated[index].text = newText;
-      setTasks(updated);
-    }
+  const toggleComplete = (id) => {
+    setCompletedTaskIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
   };
 
-  const handleDelete = (index) => {
-    if (confirm("Hapus task ini?")) {
-      const updated = tasks.filter((_, i) => i !== index);
-      setTasks(updated);
-    }
+  const handleDelete = (id) => {
+    setTasks((prev) => prev.filter((task) => task.id !== id));
   };
 
   const handleAddTask = () => {
-    const newText = prompt("Tambah task baru:");
-    if (newText) {
-      const newTask = {
-        text: newText,
-        done: false,
-        date: new Date().toLocaleDateString("en-GB"), // contoh: 07/04/2025
-        description: "No Description",
-      };
-      setTasks([newTask, ...tasks]);
-    }
+    const id = Date.now();
+    setTasks((prev) => [
+      ...prev,
+      {
+        id,
+        ...newTask,
+        createdAt: new Date().toISOString(),
+      },
+    ]);
+    setNewTask({ title: "", dueDate: "", description: "" });
+    setShowForm(false);
+  };
+
+  const handleDateChange = (id, value) => {
+    setTasks((prev) =>
+      prev.map((task) => (task.id === id ? { ...task, dueDate: value } : task))
+    );
   };
 
   return (
-    <PopupBox title="My Tasks" onClose={onClose}>
-      <div className="flex justify-between items-center px-4 pt-2 pb-1">
-        <h2 className="text-sm font-semibold text-gray-700">My Tasks</h2>
-        <button
-          onClick={handleAddTask}
-          className="bg-blue-500 text-white text-xs px-3 py-1 rounded hover:bg-blue-600 transition"
+    <PopupBox>
+      <div className="flex justify-between items-center mb-4 ml-12">
+        <select
+          value={selectedGroup}
+          onChange={(e) => setSelectedGroup(e.target.value)}
+          className="border text-sm rounded px-2 py-1"
         >
-          New Task
+          {taskGroups.map((group) => (
+            <option key={group.id} value={group.id}>
+              {group.name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={() => setShowForm(true)}
+          className="bg-blue-500 text-white text-sm px-3 py-1 rounded"
+        >
+          + New Task
         </button>
       </div>
 
-      <div className="max-h-[400px] overflow-y-auto divide-y">
-        {tasks.length > 0 ? (
-          tasks.map((task, i) => (
-            <div
-              key={i}
-              className="p-4 flex flex-col gap-2 group hover:bg-gray-50 relative"
-            >
-              <div className="flex justify-between items-start">
-                <div className="flex gap-2 items-start">
-                  <input
-                    type="checkbox"
-                    checked={task.done}
-                    onChange={() => handleToggleDone(i)}
-                    className="mt-1"
-                  />
-                  <div>
-                    <p
-                      className={`text-sm font-medium ${
-                        task.done ? "line-through text-gray-500" : "text-gray-800"
-                      }`}
-                    >
-                      {task.text}
-                    </p>
+      {loading ? (
+        <LoadingSpinner />
+      ) : (
+        <div className="space-y-4">
+          {tasks.map((task) => {
+            const countdown = formatDistanceToNowStrict(
+              new Date(task.dueDate),
+              { addSuffix: false }
+            );
+            const isExpanded = expandedTaskIds.includes(task.id);
+            const isCompleted = completedTaskIds.includes(task.id);
 
-                    <div className="text-xs text-gray-500 mt-1 flex items-center gap-2">
-                      <CalendarDays size={12} />
-                      <span>{task.date}</span>
-                      {task.description && (
-                        <>
-                          <span className="mx-2">|</span>
-                          <span>{task.description}</span>
-                        </>
-                      )}
+            return (
+              <div
+                key={task.id}
+                className="p-4 bg-white relative shadow border-b border-gray-600"
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={isCompleted}
+                        onChange={() => toggleComplete(task.id)}
+                      />
+                      <h3
+                        className={`text-sm font-medium ${
+                          isCompleted ? "line-through text-gray-400" : ""
+                        }`}
+                      >
+                        {task.title}
+                        {!isCompleted && (
+                          <span className="text-red-500 text-xs ml-2">
+                            {countdown} Left
+                          </span>
+                        )}
+                      </h3>
                     </div>
+                  </div>
+
+                  <div className="flex gap-2 items-start">
+                    <span className="text-sm text-gray-600">
+                      {format(new Date(task.dueDate), "dd/MM/yyyy")}
+                    </span>
+                    <button onClick={() => toggleExpand(task.id)}>
+                      {isExpanded ? (
+                        <ChevronUp size={18} />
+                      ) : (
+                        <ChevronDown size={18} />
+                      )}
+                    </button>
+                    <OptionsMenu
+                      onEdit={() => {}}
+                      onDelete={() => handleDelete(task.id)}
+                    />
                   </div>
                 </div>
 
-                <div className="absolute top-2 right-3">
-                  <OptionsMenu
-                    onEdit={() => handleEdit(i)}
-                    onDelete={() => handleDelete(i)}
-                  />
-                </div>
+                {isExpanded && (
+                  <div className="ml-6 mt-2">
+                    <div className="flex items-center gap-2 mt-2 text-gray-600 text-sm">
+                      <Clock className="w-5 h-5 text-blue-500" />
+                      <input
+                        type="date"
+                        value={task.dueDate}
+                        onChange={(e) =>
+                          handleDateChange(task.id, e.target.value)
+                        }
+                        className="border px-2 py-1 rounded text-sm"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2 mt-2 text-gray-600 text-sm">
+                      <Pencil className="w-5 h-5 text-blue-500" />
+                      <p className="text-sm text-gray-700 mt-2">
+                        {task.description || "No Description"}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
+            );
+          })}
+          {showForm && (
+            <div className=" p-4 mb-4  bg-white shadow space-y-3">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="Type Task Title"
+                  value={newTask.title}
+                  onChange={(e) =>
+                    setNewTask({ ...newTask, title: e.target.value })
+                  }
+                  className="w-full border rounded px-2 py-1 text-sm"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-gray-600">
+                  <Clock className="w-4 h-4" />
+                </span>
+                <input
+                  type="date"
+                  value={newTask.dueDate}
+                  onChange={(e) =>
+                    setNewTask({ ...newTask, dueDate: e.target.value })
+                  }
+                  className="border rounded px-3 py-1 text-sm text-gray-700"
+                  placeholder="Set Date..."
+                />
+              </div>
+
+              <div className="flex items-start gap-2">
+                <Pencil className="w-4 h-4 text-gray-600 mt-1" />
+                <textarea
+                  placeholder="No Description"
+                  value={newTask.description}
+                  onChange={(e) =>
+                    setNewTask({ ...newTask, description: e.target.value })
+                  }
+                  className="w-full px-2 py-1 text-sm"
+                />
+              </div>
+
+              <button
+                onClick={handleAddTask}
+                className="bg-blue-500 text-white px-3 py-1 text-sm rounded"
+              >
+                Save Task
+              </button>
             </div>
-          ))
-        ) : (
-          <p className="text-gray-500 text-sm text-center py-6">Belum ada tugas.</p>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </PopupBox>
   );
 }

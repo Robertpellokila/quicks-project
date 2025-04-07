@@ -2,22 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import Message from "./Message";
 import PopupBox from "./PopupBox";
 import SearchInput from "./SearchInput";
-import { Users } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
-
-function NewMessageNotification({ onClick }) {
-  return (
-    <motion.div
-      initial={{ y: 50, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ y: 50, opacity: 0 }}
-      onClick={onClick}
-      className="fixed bottom-20 left-1/2 -translate-x-1/2 text-center bg-blue-100 text-blue-400 px-4 py-2 rounded-md shadow-lg cursor-pointer text-sm font-bold"
-    >
-      New Message
-    </motion.div>
-  );
-}
+import FloatingNotification from "./FloatingNotification";
+import { Users, ArrowLeft, X } from "lucide-react";
 
 function LoadingSpinner() {
   return (
@@ -30,7 +16,6 @@ function LoadingSpinner() {
   );
 }
 
-
 function groupMessagesByDate(messages) {
   const grouped = {};
   messages.forEach((msg) => {
@@ -41,7 +26,12 @@ function groupMessagesByDate(messages) {
   return grouped;
 }
 
-export default function PopupChat({ chats, selectedChat, onSelectChat, onClose }) {
+export default function PopupChat({
+  chats,
+  selectedChat,
+  onSelectChat,
+  onClose,
+}) {
   const [newMessage, setNewMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [showNotification, setShowNotification] = useState(false);
@@ -80,19 +70,19 @@ export default function PopupChat({ chats, selectedChat, onSelectChat, onClose }
 
   const handleDeleteMessage = (index) => {
     if (confirm("Hapus pesan ini?")) {
-      const updatedMessages = selectedChat.messages.filter((_, i) => i !== index);
+      const updatedMessages = selectedChat.messages.filter(
+        (_, i) => i !== index
+      );
       onSelectChat({ ...selectedChat, messages: updatedMessages });
     }
   };
 
-  // Scroll to bottom when a chat is selected
   useEffect(() => {
     if (selectedChat) {
       setTimeout(scrollToBottom, 100);
     }
   }, [selectedChat]);
 
-  // Trigger loading every time selectedChat = null (i.e., menu opened)
   useEffect(() => {
     if (!selectedChat) {
       setLoading(true);
@@ -102,34 +92,52 @@ export default function PopupChat({ chats, selectedChat, onSelectChat, onClose }
   }, [selectedChat]);
 
   return (
-    <PopupBox
-      title={
-        selectedChat ? (
-          selectedChat.type === "group" ? (
-            <div>
-              <p className="text-blue-600 font-semibold leading-none">
-                {selectedChat.groupName || selectedChat.name}
-              </p>
-              <p className="text-[12px] text-gray-500">
-                {selectedChat.participants?.length || 0} Participants
-              </p>
+    <PopupBox>
+      <div className="flex flex-col h-full relative">
+        {/* HEADER */}
+        <div className="flex justify-between items-center pb-2">
+          <div className="flex items-center gap-2 w-full">
+            {selectedChat && (
+              <button onClick={() => onSelectChat(null)}>
+                <ArrowLeft className="w-5 h-5 text-black" />
+              </button>
+            )}
+            <div className="flex-1">
+              {selectedChat ? (
+                selectedChat.type === "group" ? (
+                  <div>
+                    <p className="text-blue-600 font-semibold leading-none">
+                      {selectedChat.groupName || selectedChat.name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {selectedChat.participants?.length || 0} Participants
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-blue-600 font-semibold">
+                    {selectedChat.name}
+                  </p>
+                )
+              ) : (
+                <SearchInput
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search"
+                />
+              )}
             </div>
-          ) : (
-            <p className="text-blue-600 font-semibold">{selectedChat.name}</p>
-          )
-        ) : (
-          <SearchInput
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search"
-          />
-        )
-      }
-      onBack={selectedChat ? () => onSelectChat(null) : null}
-      onClose={onClose}
-      showControls={!!selectedChat}
-    >
-      <div className="flex flex-col h-full">
+          </div>
+
+          {selectedChat && (
+            <button onClick={onClose}>
+              <X className="w-5 h-5 text-black" />
+            </button>
+          )}
+        </div>
+
+        <hr className="mb-3" />
+
+        {/* CONTENT */}
         <div className="flex-1 overflow-y-auto space-y-[22px] pr-2">
           {!selectedChat ? (
             loading ? (
@@ -138,9 +146,15 @@ export default function PopupChat({ chats, selectedChat, onSelectChat, onClose }
               chats
                 .filter(
                   (chat) =>
-                    chat.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    chat.lastMessage?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    chat.groupName?.toLowerCase().includes(searchTerm.toLowerCase())
+                    chat.name
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase()) ||
+                    chat.lastMessage
+                      ?.toLowerCase()
+                      .includes(searchTerm.toLowerCase()) ||
+                    chat.groupName
+                      ?.toLowerCase()
+                      .includes(searchTerm.toLowerCase())
                 )
                 .map((chat) => (
                   <div
@@ -164,59 +178,77 @@ export default function PopupChat({ chats, selectedChat, onSelectChat, onClose }
                             <p className="text-md text-blue-600 font-semibold mb-0 leading-tight">
                               {chat.groupName}
                             </p>
-                            <span className="text-xs text-gray-500 ml-6">{chat.datetime}</span>
+                            <span className="text-xs text-gray-500 ml-6">
+                              {chat.datetime}
+                            </span>
                           </div>
                         )}
                         <div className="flex items-center">
-                          <h2 className="text-sm text-gray-900 font-semibold">{chat.name}</h2>
+                          <h2 className="text-sm text-gray-900 font-semibold">
+                            {chat.name}
+                          </h2>
                           {chat.type !== "group" && (
-                            <span className="text-xs text-gray-500 ml-6">{chat.datetime}</span>
+                            <span className="text-xs text-gray-500 ml-6">
+                              {chat.datetime}
+                            </span>
                           )}
                         </div>
-                        <p className="text-sm text-gray-600 truncate">{chat.lastMessage}</p>
+                        <p className="text-sm text-gray-600 truncate">
+                          {chat.lastMessage}
+                        </p>
                       </div>
                     </div>
                   </div>
                 ))
             ) : (
-              <p className="text-gray-500 text-center mt-10">Belum ada pesan.</p>
+              <p className="text-gray-500 text-center mt-10">
+                Belum ada pesan.
+              </p>
             )
           ) : (
-            Object.entries(groupMessagesByDate(selectedChat.messages)).map(([date, messages]) => (
-              <div key={date}>
-                <div className="flex items-center my-4">
-                  <div className="flex-grow border-t border-gray-400" />
-                  <span className="px-4 text-md font-semibold text-gray-900 whitespace-nowrap">
-                    {date}
-                  </span>
-                  <div className="flex-grow border-t border-gray-900" />
-                </div>
+            Object.entries(groupMessagesByDate(selectedChat.messages)).map(
+              ([date, messages]) => (
+                <div key={date}>
+                  <div className="flex items-center my-4">
+                    <div className="flex-grow border-t border-gray-400" />
+                    <span className="px-4 text-md font-semibold text-gray-900 whitespace-nowrap">
+                      {date}
+                    </span>
+                    <div className="flex-grow border-t border-gray-900" />
+                  </div>
 
-                {messages.map((msg, index) => (
-                  <Message
-                    key={index}
-                    message={msg}
-                    onEdit={() => handleEditMessage(index)}
-                    onDelete={() => handleDeleteMessage(index)}
-                  />
-                ))}
-              </div>
-            ))
+                  {messages.map((msg, index) => {
+                    const isMe = msg.sender === "You";
+
+                    return (
+                      <Message
+                        key={index}
+                        message={msg}
+                        bubbleColor={!isMe && msg.BubbleColor ? msg.BubbleColor : undefined}
+                        textColor={!isMe && msg.TextColor ? msg.TextColor : undefined}
+                        onEdit={() => handleEditMessage(index)}
+                        onDelete={() => handleDeleteMessage(index)}
+                      />
+                    );
+                  })}
+                </div>
+              )
+            )
           )}
           <div ref={messagesEndRef} />
         </div>
 
-        <AnimatePresence>
-          {showNotification && (
-            <NewMessageNotification
-              onClick={() => {
-                setShowNotification(false);
-                scrollToBottom();
-              }}
-            />
-          )}
-        </AnimatePresence>
+        {/* NOTIFICATION */}
+        <FloatingNotification
+          show={showNotification}
+          message="New Message"
+          onClick={() => {
+            setShowNotification(false);
+            setTimeout(scrollToBottom, 300);
+          }}
+        />
 
+        {/* INPUT */}
         {selectedChat && (
           <div className="border-t p-3 flex items-center gap-2">
             <input

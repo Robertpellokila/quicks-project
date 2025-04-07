@@ -29,7 +29,7 @@ export default function OptionsMenu({ onEdit, onDelete }) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: -4 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className="absolute left-0 z-10 mt-1 w-28 bg-white border border-gray-300 rounded shadow-md text-sm overflow-hidden"
+            className="absolute right-0 z-10 mt-1 w-28 bg-white border border-gray-300 rounded shadow-md text-sm overflow-hidden"
           >
             <button
               onClick={() => {
