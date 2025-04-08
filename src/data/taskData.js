@@ -1,27 +1,5 @@
 export const taskGroups = [
     {
-    // {
-    //   id: "my-tasks",
-    //   name: "My Tasks",
-    //   tasks: [
-    //     {
-    //       id: 1,
-    //       title: "Cross-reference with Jeanne for Case #192813",
-    //       description: "No Description",
-    //       dueDate: "2025-04-09",
-    //       createdAt: "2025-04-05",
-    //       completed: false,
-    //     },
-    //     {
-    //       id: 2,
-    //       title: "Check and Revise Homework from Andre Gonzales",
-    //       description: "Check client profile, passport, documents, etc.",
-    //       dueDate: "2025-04-11",
-    //       createdAt: "2025-04-02",
-    //       completed: true,
-    //     },
-    //   ],
-    // },
     id: "my-tasks",
       name: "My Tasks",
       tasks: [

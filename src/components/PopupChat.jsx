@@ -4,6 +4,7 @@ import PopupBox from "./PopupBox";
 import SearchInput from "./SearchInput";
 import FloatingNotification from "./FloatingNotification";
 import { Users, ArrowLeft, X } from "lucide-react";
+import ButtonTrigger from "./ButtonTrigger";
 
 function LoadingSpinner() {
   return (
@@ -263,12 +264,12 @@ export default function PopupChat({
               placeholder="Type a new message"
               className="flex-1 px-3 py-2 border rounded-lg outline-none text-sm relative z-20"
             />
-            <button
-              onClick={handleSend}
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm"
-            >
-              Send
-            </button>
+            <ButtonTrigger 
+              
+                title="Send"
+                onclick={handleSend}
+                
+            />
           </div>
         )}
       </div>

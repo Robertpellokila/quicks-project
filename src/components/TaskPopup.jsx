@@ -13,6 +13,7 @@ import {
 import OptionsMenu from "./OptionsMenu";
 import PopupBox from "./PopupBox";
 import { taskGroups } from "../data/taskData";
+import ButtonTrigger from "./ButtonTrigger";
 
 function LoadingSpinner() {
   return (
@@ -98,12 +99,16 @@ export default function TaskPopup() {
             </option>
           ))}
         </select>
-        <button
+        <ButtonTrigger 
+        onclick={() => setShowForm(true)}
+        title={"+ New Task"}
+        />
+        {/* <button
           onClick={() => setShowForm(true)}
           className="bg-blue-500 text-white text-sm px-3 py-1 rounded"
         >
           + New Task
-        </button>
+        </button> */}
       </div>
 
       {loading ? (
