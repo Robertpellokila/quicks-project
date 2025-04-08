@@ -20,12 +20,64 @@ function LoadingSpinner() {
 function groupMessagesByDate(messages) {
   const grouped = {};
   messages.forEach((msg) => {
-    const date = new Date(msg.date || msg.time).toDateString();
-    if (!grouped[date]) grouped[date] = [];
-    grouped[date].push(msg);
+    const dateStr = msg.date || msg.datetime;
+    if (!dateStr) return;
+    const dateKey = new Date(dateStr).toDateString();
+    if (!grouped[dateKey]) grouped[dateKey] = [];
+    grouped[dateKey].push(msg);
   });
   return grouped;
 }
+
+function formatChatDatetime(datetimeString) {
+  const date = new Date(datetimeString);
+  const today = new Date();
+
+  const isToday = date.toDateString() === today.toDateString();
+
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+  const isYesterday = date.toDateString() === yesterday.toDateString();
+
+  const time = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+  if (isToday) return `Today, ${time}`;
+  if (isYesterday) return `Yesterday, ${time}`;
+
+  return date.toLocaleDateString("en-US", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }) + `, ${time}`;
+}
+
+
+
+function getDateSeparator(dateString) {
+  const today = new Date();
+  const date = new Date(dateString);
+
+  const isToday = date.toDateString() === today.toDateString();
+
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  const isYesterday = date.toDateString() === yesterday.toDateString();
+
+  if (isToday) return "Today";
+  if (isYesterday) return "Yesterday";
+
+  // Format: Monday, 7 April 2025
+  return date.toLocaleDateString("en-US", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+
 
 export default function PopupChat({
   chats,
@@ -94,9 +146,9 @@ export default function PopupChat({
 
   return (
     <PopupBox>
-      <div className="flex flex-col h-full relative">
+      <div className="flex flex-col h-full w-full ">
         {/* HEADER */}
-        <div className="flex justify-between items-center pb-2">
+        <div className="flex justify-between items-center mb-2">
           <div className="flex items-center gap-2 w-full">
             {selectedChat && (
               <button onClick={() => onSelectChat(null)}>
@@ -180,7 +232,7 @@ export default function PopupChat({
                               {chat.groupName}
                             </p>
                             <span className="text-xs text-gray-500 ml-6">
-                              {chat.datetime}
+                              {formatChatDatetime(chat.datetime)}
                             </span>
                           </div>
                         )}
@@ -190,7 +242,7 @@ export default function PopupChat({
                           </h2>
                           {chat.type !== "group" && (
                             <span className="text-xs text-gray-500 ml-6">
-                              {chat.datetime}
+                              {formatChatDatetime(chat.datetime)}
                             </span>
                           )}
                         </div>
@@ -213,7 +265,7 @@ export default function PopupChat({
                   <div className="flex items-center my-4">
                     <div className="flex-grow border-t border-gray-400" />
                     <span className="px-4 text-md font-semibold text-gray-900 whitespace-nowrap">
-                      {date}
+                      {getDateSeparator(date)}
                     </span>
                     <div className="flex-grow border-t border-gray-900" />
                   </div>
@@ -255,21 +307,16 @@ export default function PopupChat({
 
         {/* INPUT */}
         {selectedChat && (
-          <div className="border-t p-3 flex items-center gap-2 relative z-[99]">
+          <div className="border-t p-3 flex items-center gap-2">
             <input
               type="text"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
               placeholder="Type a new message"
-              className="flex-1 px-3 py-2 border rounded-lg outline-none text-sm relative z-20"
+              className="flex-1 px-3 py-2 border rounded-lg outline-none text-sm"
             />
-            <ButtonTrigger 
-              
-                title="Send"
-                onclick={handleSend}
-                
-            />
+            <ButtonTrigger title="Send" onclick={handleSend} />
           </div>
         )}
       </div>

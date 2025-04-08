@@ -99,16 +99,7 @@ export default function TaskPopup() {
             </option>
           ))}
         </select>
-        <ButtonTrigger 
-        onclick={() => setShowForm(true)}
-        title={"+ New Task"}      
-        />
-        {/* <button
-          onClick={() => setShowForm(true)}
-          className="bg-blue-500 text-white text-sm px-3 py-1 rounded"
-        >
-          + New Task
-        </button> */}
+        <ButtonTrigger onclick={() => setShowForm(true)} title={"+ New Task"} />
       </div>
 
       {loading ? (
@@ -116,10 +107,18 @@ export default function TaskPopup() {
       ) : (
         <div className="space-y-4">
           {tasks.map((task) => {
-            const countdown = formatDistanceToNowStrict(
-              new Date(task.dueDate),
-              { addSuffix: false }
-            );
+            const dueDate = new Date(task.dueDate);
+            const now = new Date();
+            const isOverdue = dueDate < now;
+
+            const countdown = formatDistanceToNowStrict(dueDate, {
+              addSuffix: false,
+            });
+
+            const countdownText = isOverdue
+              ? ` ${countdown} ago`
+              : `${countdown} left`;
+
             const isExpanded = expandedTaskIds.includes(task.id);
             const isCompleted = completedTaskIds.includes(task.id);
 
@@ -143,8 +142,14 @@ export default function TaskPopup() {
                       >
                         {task.title}
                         {!isCompleted && (
-                          <span className="text-red-500 text-xs ml-2">
-                            {countdown} Left
+                          <span
+                            className={`text-xs ml-2 ${
+                              isOverdue
+                                ? "text-red-600 font-semibold"
+                                : "text-red-500"
+                            }`}
+                          >
+                            {countdownText}
                           </span>
                         )}
                       </h3>
@@ -162,9 +167,7 @@ export default function TaskPopup() {
                         <ChevronDown size={18} />
                       )}
                     </button>
-                    <OptionsMenu
-                      onDelete={() => handleDelete(task.id)}
-                    />
+                    <OptionsMenu onDelete={() => handleDelete(task.id)} />
                   </div>
                 </div>
 
@@ -233,16 +236,7 @@ export default function TaskPopup() {
                 />
               </div>
 
-                  <ButtonTrigger
-                  onclick={handleAddTask}
-                  title={"Save Task"}
-                  />
-              {/* <button
-                onClick={handleAddTask}
-                className="bg-blue-500 text-white px-3 py-1 text-sm rounded"
-              >
-                Save Task
-              </button> */}
+              <ButtonTrigger onclick={handleAddTask} title={"Save Task"} />
             </div>
           )}
         </div>
