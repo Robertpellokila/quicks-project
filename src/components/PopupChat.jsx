@@ -255,7 +255,7 @@ export default function PopupChat({
 
         {/* INPUT */}
         {selectedChat && (
-          <div className="border-t p-3 flex items-center gap-2 relative z-10">
+          <div className="border-t p-3 flex items-center gap-2 relative z-[99]">
             <input
               type="text"
               value={newMessage}

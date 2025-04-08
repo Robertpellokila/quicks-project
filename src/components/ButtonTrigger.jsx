@@ -1,9 +1,10 @@
 import React from 'react'
+import styled from 'styled-components';
 
 const ButtonTrigger = ({onclick, title}) => {
   return (
     <StyledWrapper>
-      <button className="pushable" onclick={onclick}>
+      <button className="pushable" onClick={onclick}>
         <span className="shadow" />
         <span className="edge" />
         <span className="front"> {title} </span>
@@ -59,8 +60,8 @@ const StyledWrapper = styled.div`
     display: block;
     position: relative;
     border-radius: 8px;
-    background: hsl(248, 53%, 58%);
-    padding: 16px 32px;
+    background: #2F80ED;
+    padding: 4px 16px;
     color: white;
     font-weight: 600;
     text-transform: uppercase;

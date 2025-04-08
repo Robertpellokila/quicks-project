@@ -87,7 +87,7 @@ export default function TaskPopup() {
 
   return (
     <PopupBox>
-      <div className="flex justify-between items-center mb-4 ml-12">
+      <div className="flex justify-between items-center my-2 ml-12">
         <select
           value={selectedGroup}
           onChange={(e) => setSelectedGroup(e.target.value)}
@@ -101,7 +101,7 @@ export default function TaskPopup() {
         </select>
         <ButtonTrigger 
         onclick={() => setShowForm(true)}
-        title={"+ New Task"}
+        title={"+ New Task"}      
         />
         {/* <button
           onClick={() => setShowForm(true)}
@@ -233,12 +233,16 @@ export default function TaskPopup() {
                 />
               </div>
 
-              <button
+                  <ButtonTrigger
+                  onclick={handleAddTask}
+                  title={"Save Task"}
+                  />
+              {/* <button
                 onClick={handleAddTask}
                 className="bg-blue-500 text-white px-3 py-1 text-sm rounded"
               >
                 Save Task
-              </button>
+              </button> */}
             </div>
           )}
         </div>
