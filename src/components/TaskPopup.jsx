@@ -45,12 +45,12 @@ export default function TaskPopup() {
   useEffect(() => {
     setLoading(true);
     const timeout = setTimeout(() => {
-      setTasks((prev) => taskGroups[selectedGroup] || []);
+      setTasks(taskGroups[selectedGroup] || []);
       setLoading(false);
     }, 800);
 
     return () => clearTimeout(timeout);
-  }, [selectedGroup]); 
+  }, [selectedGroup]);
 
   const toggleExpand = (id) => {
     setExpandedTaskIds((prev) =>
@@ -132,195 +132,211 @@ export default function TaskPopup() {
       />
 
       <PopupBox>
-        <div className="flex justify-between items-center my-2 ml-12">
-          <select
-            value={selectedGroup}
-            onChange={(e) => setSelectedGroup(e.target.value)}
-            className="border text-sm rounded px-2 py-1"
-          >
-            {initialTaskGroups.map((group) => (
-              <option key={group.id} value={group.id}>
-                {group.name}
-              </option>
-            ))}
-          </select>
-          <ButtonTrigger
-            onclick={() => setShowForm(true)}
-            title={"+ New Task"}
-          />
-        </div>
+        <div className="flex flex-col h-[70vh]">
+          {/* Fixed Header */}
+          <div className="sticky top-0 z-10 bg-white py-2 px-4 border-b flex justify-between items-center">
+            <select
+              value={selectedGroup}
+              onChange={(e) => setSelectedGroup(e.target.value)}
+              className="border text-sm rounded px-2 py-1"
+            >
+              {initialTaskGroups.map((group) => (
+                <option key={group.id} value={group.id}>
+                  {group.name}
+                </option>
+              ))}
+            </select>
+            <ButtonTrigger
+              onclick={() => setShowForm(true)}
+              title={"+ New Task"}
+            />
+          </div>
 
-        {loading ? (
-          <LoadingSpinner />
-        ) : (
-          <div className="space-y-4">
-            {tasks.map((task) => {
-              const dueDate = new Date(task.dueDate);
-              const now = new Date();
-              const isOverdue = dueDate < now;
+          {/* Scrollable Content */}
+          <div className="overflow-y-auto px-4 py-2 space-y-4 flex-1">
+            {loading ? (
+              <LoadingSpinner />
+            ) : (
+              <>
+                {tasks.map((task) => {
+                  const dueDate = new Date(task.dueDate);
+                  const now = new Date();
+                  const isOverdue = dueDate < now;
 
-              const countdown = formatDistanceToNowStrict(dueDate, {
-                addSuffix: false,
-              });
+                  const countdown = formatDistanceToNowStrict(dueDate, {
+                    addSuffix: false,
+                  });
 
-              const countdownText = isOverdue
-                ? ` ${countdown} ago`
-                : `${countdown} left`;
+                  const countdownText = isOverdue
+                    ? ` ${countdown} ago`
+                    : `${countdown} left`;
 
-              const isExpanded = expandedTaskIds.includes(task.id);
-              const isCompleted = completedTaskIds.includes(task.id);
+                  const isExpanded = expandedTaskIds.includes(task.id);
+                  const isCompleted = completedTaskIds.includes(task.id);
 
-              return (
-                <div
-                  key={task.id}
-                  className="p-4 bg-white relative shadow border-b border-gray-600"
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={isCompleted}
-                          onChange={() => toggleComplete(task.id)}
-                        />
-                        <h3
-                          className={`text-sm font-medium ${
-                            isCompleted ? "line-through text-gray-400" : ""
-                          }`}
-                        >
-                          {task.title}
-                          {!isCompleted && (
-                            <span
-                              className={`text-xs ml-2 ${
-                                isOverdue
-                                  ? "text-red-600 font-semibold"
-                                  : "text-red-500"
+                  return (
+                    <div
+                      key={task.id}
+                      className="p-4 bg-white relative shadow border-b border-gray-600"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={isCompleted}
+                              onChange={() => toggleComplete(task.id)}
+                            />
+                            <h3
+                              className={`text-sm font-medium ${
+                                isCompleted ? "line-through text-gray-400" : ""
                               }`}
                             >
-                              {countdownText}
-                            </span>
-                          )}
-                        </h3>
-                      </div>
-                    </div>
+                              {task.title}
+                              {!isCompleted && (
+                                <span
+                                  className={`text-xs ml-2 ${
+                                    isOverdue
+                                      ? "text-red-600 font-semibold"
+                                      : "text-red-500"
+                                  }`}
+                                >
+                                  {countdownText}
+                                </span>
+                              )}
+                            </h3>
+                          </div>
+                        </div>
 
-                    <div className="flex gap-2 items-start">
-                      <span className="text-sm text-gray-600">
-                        {format(new Date(task.dueDate), "dd/MM/yyyy")}
-                      </span>
-                      <button onClick={() => toggleExpand(task.id)}>
-                        {isExpanded ? (
-                          <ChevronUp size={18} />
-                        ) : (
-                          <ChevronDown size={18} />
-                        )}
-                      </button>
-                      <OptionsMenu
-                        onDelete={() => setTaskIdToDelete(task.id)}
-                      />
-                    </div>
-                  </div>
-
-                  {isExpanded && (
-                    <div className="ml-6 mt-2">
-                      <div
-                        className="flex items-center gap-2 mt-2 text-gray-600 text-sm cursor-pointer"
-                        onClick={() => setEditingDateTaskId(task.id)}
-                      >
-                        <Clock className="w-5 h-5 text-blue-500 hover:scale-120" />
-                        {editingDateTaskId === task.id ? (
-                          <input
-                            type="date"
-                            value={task.dueDate}
-                            onChange={(e) =>
-                              handleDateChange(task.id, e.target.value)
-                            }
-                            onBlur={() => setEditingDateTaskId(null)}
-                            className="border px-2 py-1 rounded text-sm"
-                            autoFocus
-                          />
-                        ) : (
-                          <span className="text-sm text-gray-700">
+                        <div className="flex gap-2 items-start">
+                          <span className="text-sm text-gray-600">
                             {format(new Date(task.dueDate), "dd/MM/yyyy")}
                           </span>
-                        )}
-                      </div>
-
-                      <div
-                        className="flex items-start gap-2 mt-2 text-gray-600 text-sm cursor-pointer"
-                        onClick={() => setEditingTaskId(task.id)}
-                      >
-                        <Pencil className="w-5 h-5 text-blue-500 mt-1 hover:scale-120" />
-                        {editingTaskId === task.id ? (
-                          <textarea
-                            className="w-full px-2 py-1 border rounded text-sm"
-                            value={task.description}
-                            onChange={(e) =>
-                              handleDescriptionChange(task.id, e.target.value)
-                            }
-                            onBlur={() => setEditingTaskId(null)}
-                            autoFocus
+                          <button onClick={() => toggleExpand(task.id)}>
+                            {isExpanded ? (
+                              <ChevronUp size={18} />
+                            ) : (
+                              <ChevronDown size={18} />
+                            )}
+                          </button>
+                          <OptionsMenu
+                            onDelete={() => setTaskIdToDelete(task.id)}
                           />
-                        ) : (
-                          <p className="text-sm text-gray-700">
-                            {task.description ||
-                              "Klik untuk menambahkan deskripsi"}
-                          </p>
-                        )}
+                        </div>
                       </div>
+
+                      {isExpanded && (
+                        <div className="ml-6 mt-2">
+                          <div
+                            className="flex items-center gap-2 mt-2 text-gray-600 text-sm cursor-pointer"
+                            onClick={() => setEditingDateTaskId(task.id)}
+                          >
+                            <Clock className="w-5 h-5 text-blue-500 hover:scale-120" />
+                            {editingDateTaskId === task.id ? (
+                              <input
+                                type="date"
+                                value={task.dueDate}
+                                onChange={(e) =>
+                                  handleDateChange(task.id, e.target.value)
+                                }
+                                onBlur={() => setEditingDateTaskId(null)}
+                                className="border px-2 py-1 rounded text-sm"
+                                autoFocus
+                              />
+                            ) : (
+                              <span className="text-sm text-gray-700">
+                                {format(
+                                  new Date(task.dueDate),
+                                  "dd/MM/yyyy"
+                                )}
+                              </span>
+                            )}
+                          </div>
+
+                          <div
+                            className="flex items-start gap-2 mt-2 text-gray-600 text-sm cursor-pointer"
+                            onClick={() => setEditingTaskId(task.id)}
+                          >
+                            <Pencil className="w-5 h-5 text-blue-500 mt-1 hover:scale-120" />
+                            {editingTaskId === task.id ? (
+                              <textarea
+                                className="w-full px-2 py-1 border rounded text-sm"
+                                value={task.description}
+                                onChange={(e) =>
+                                  handleDescriptionChange(
+                                    task.id,
+                                    e.target.value
+                                  )
+                                }
+                                onBlur={() => setEditingTaskId(null)}
+                                autoFocus
+                              />
+                            ) : (
+                              <p className="text-sm text-gray-700">
+                                {task.description ||
+                                  "Klik untuk menambahkan deskripsi"}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              );
-            })}
-            {showForm && (
-              <div className="p-4 mb-4 bg-white shadow space-y-3">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    placeholder="Type Task Title"
-                    value={newTask.title}
-                    onChange={(e) =>
-                      setNewTask({ ...newTask, title: e.target.value })
-                    }
-                    className="w-full border rounded px-2 py-1 text-sm"
-                  />
-                </div>
+                  );
+                })}
 
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-600">
-                    <Clock className="w-4 h-4" />
-                  </span>
-                  <input
-                    type="date"
-                    value={newTask.dueDate}
-                    onChange={(e) =>
-                      setNewTask({ ...newTask, dueDate: e.target.value })
-                    }
-                    className="border rounded px-3 py-1 text-sm text-gray-700"
-                    placeholder="Set Date..."
-                  />
-                </div>
+                {showForm && (
+                  <div className="p-4 mb-4 bg-white shadow space-y-3">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        placeholder="Type Task Title"
+                        value={newTask.title}
+                        onChange={(e) =>
+                          setNewTask({ ...newTask, title: e.target.value })
+                        }
+                        className="w-full border rounded px-2 py-1 text-sm"
+                      />
+                    </div>
 
-                <div className="flex items-start gap-2">
-                  <Pencil className="w-4 h-4 text-gray-600 mt-1" />
-                  <textarea
-                    placeholder="No Description"
-                    value={newTask.description}
-                    onChange={(e) =>
-                      setNewTask({ ...newTask, description: e.target.value })
-                    }
-                    className="w-full px-2 py-1 text-sm"
-                  />
-                </div>
-                {formError && (
-                  <div className="text-red-500 text-sm">{formError}</div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-600">
+                        <Clock className="w-4 h-4" />
+                      </span>
+                      <input
+                        type="date"
+                        value={newTask.dueDate}
+                        onChange={(e) =>
+                          setNewTask({ ...newTask, dueDate: e.target.value })
+                        }
+                        className="border rounded px-3 py-1 text-sm text-gray-700"
+                        placeholder="Set Date..."
+                      />
+                    </div>
+
+                    <div className="flex items-start gap-2">
+                      <Pencil className="w-4 h-4 text-gray-600 mt-1" />
+                      <textarea
+                        placeholder="No Description"
+                        value={newTask.description}
+                        onChange={(e) =>
+                          setNewTask({
+                            ...newTask,
+                            description: e.target.value,
+                          })
+                        }
+                        className="w-full px-2 py-1 text-sm"
+                      />
+                    </div>
+                    {formError && (
+                      <div className="text-red-500 text-sm">{formError}</div>
+                    )}
+                    <ButtonTrigger onclick={handleAddTask} title={"Save Task"} />
+                  </div>
                 )}
-                <ButtonTrigger onclick={handleAddTask} title={"Save Task"} />
-              </div>
+              </>
             )}
           </div>
-        )}
+        </div>
       </PopupBox>
     </>
   );
