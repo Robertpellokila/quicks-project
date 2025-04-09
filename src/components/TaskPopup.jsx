@@ -3,7 +3,7 @@ import { formatDistanceToNowStrict, format } from "date-fns";
 import { ChevronDown, ChevronUp, Pencil, Clock } from "lucide-react";
 import OptionsMenu from "./OptionsMenu";
 import PopupBox from "./PopupBox";
-import { taskGroups } from "../data/taskData";
+import { taskGroups as initialTaskGroups } from "../data/taskData";
 import ButtonTrigger from "./ButtonTrigger";
 import CustomModal from "./CustomModal";
 
@@ -20,6 +20,13 @@ function LoadingSpinner() {
 
 export default function TaskPopup() {
   const [selectedGroup, setSelectedGroup] = useState("my-tasks");
+  const [taskGroups, setTaskGroups] = useState(() => {
+    const groupMap = {};
+    initialTaskGroups.forEach((group) => {
+      groupMap[group.id] = group.tasks;
+    });
+    return groupMap;
+  });
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedTaskIds, setExpandedTaskIds] = useState([]);
@@ -33,16 +40,17 @@ export default function TaskPopup() {
   const [editingDateTaskId, setEditingDateTaskId] = useState(null);
   const [completedTaskIds, setCompletedTaskIds] = useState([]);
   const [taskIdToDelete, setTaskIdToDelete] = useState(null);
+  const [formError, setFormError] = useState("");
 
   useEffect(() => {
     setLoading(true);
     const timeout = setTimeout(() => {
-      const group = taskGroups.find((g) => g.id === selectedGroup);
-      setTasks(group?.tasks || []);
+      setTasks((prev) => taskGroups[selectedGroup] || []);
       setLoading(false);
     }, 800);
+
     return () => clearTimeout(timeout);
-  }, [selectedGroup]);
+  }, [selectedGroup]); 
 
   const toggleExpand = (id) => {
     setExpandedTaskIds((prev) =>
@@ -57,41 +65,64 @@ export default function TaskPopup() {
   };
 
   const handleAddTask = () => {
-    const id = Date.now();
-    setTasks((prev) => [
-      ...prev,
-      {
-        id,
-        ...newTask,
-        createdAt: new Date().toISOString(),
-      },
-    ]);
+    if (
+      !newTask.title.trim() ||
+      !newTask.dueDate ||
+      !newTask.description.trim()
+    ) {
+      setFormError(
+        "Please fill in all fields (Title, Due Date, and Description)"
+      );
+      return;
+    }
+
+    setFormError("");
+
+    const taskToAdd = {
+      id: Date.now(),
+      title: newTask.title,
+      dueDate: newTask.dueDate,
+      description: newTask.description,
+      completed: false,
+    };
+
+    const updatedTasks = [...(taskGroups[selectedGroup] || []), taskToAdd];
+    const updatedGroups = {
+      ...taskGroups,
+      [selectedGroup]: updatedTasks,
+    };
+
+    setTaskGroups(updatedGroups);
+    setTasks(updatedTasks);
     setNewTask({ title: "", dueDate: "", description: "" });
     setShowForm(false);
   };
 
   const handleDateChange = (id, value) => {
-    setTasks((prev) =>
-      prev.map((task) => (task.id === id ? { ...task, dueDate: value } : task))
+    const updatedTasks = tasks.map((task) =>
+      task.id === id ? { ...task, dueDate: value } : task
     );
+    setTasks(updatedTasks);
+    setTaskGroups({ ...taskGroups, [selectedGroup]: updatedTasks });
   };
 
   const handleDescriptionChange = (id, value) => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === id ? { ...task, description: value } : task
-      )
+    const updatedTasks = tasks.map((task) =>
+      task.id === id ? { ...task, description: value } : task
     );
+    setTasks(updatedTasks);
+    setTaskGroups({ ...taskGroups, [selectedGroup]: updatedTasks });
   };
 
   const handleDeleteConfirm = () => {
-    setTasks((prev) => prev.filter((task) => task.id !== taskIdToDelete));
+    const updatedTasks = tasks.filter((task) => task.id !== taskIdToDelete);
+    setTasks(updatedTasks);
+    setTaskGroups({ ...taskGroups, [selectedGroup]: updatedTasks });
     setTaskIdToDelete(null);
   };
 
   return (
     <>
-      {/* Modal Delete Task */}
       <CustomModal
         isOpen={taskIdToDelete !== null}
         onClose={() => setTaskIdToDelete(null)}
@@ -107,7 +138,7 @@ export default function TaskPopup() {
             onChange={(e) => setSelectedGroup(e.target.value)}
             className="border text-sm rounded px-2 py-1"
           >
-            {taskGroups.map((group) => (
+            {initialTaskGroups.map((group) => (
               <option key={group.id} value={group.id}>
                 {group.name}
               </option>
@@ -184,7 +215,9 @@ export default function TaskPopup() {
                           <ChevronDown size={18} />
                         )}
                       </button>
-                      <OptionsMenu onDelete={() => setTaskIdToDelete(task.id)} />
+                      <OptionsMenu
+                        onDelete={() => setTaskIdToDelete(task.id)}
+                      />
                     </div>
                   </div>
 
@@ -280,7 +313,9 @@ export default function TaskPopup() {
                     className="w-full px-2 py-1 text-sm"
                   />
                 </div>
-
+                {formError && (
+                  <div className="text-red-500 text-sm">{formError}</div>
+                )}
                 <ButtonTrigger onclick={handleAddTask} title={"Save Task"} />
               </div>
             )}
