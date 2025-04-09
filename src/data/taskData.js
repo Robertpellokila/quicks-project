@@ -8,6 +8,7 @@ export const taskGroups = [
           title: "Close off Case #012920 - RODRIGUES, Amiguel",
           description:
             "Closing off this case since this application has been cancelled.",
+            categories: ["Important ASAP", "Client Related"],
           dueDate: "2025-04-10",
           createdAt: "2025-04-01",
         },
@@ -16,6 +17,7 @@ export const taskGroups = [
           title: "Set up documentation report for several Cases",
           description:
             "All Cases must include all payment transactions, documents, and messages.",
+            categories: ["Important ASAP", "Client Related"],
           dueDate: "2025-04-12",
           createdAt: "2025-04-01",
         },
@@ -29,6 +31,7 @@ export const taskGroups = [
           id: 3,
           title: "Design new client onboarding flow",
           description: "Discuss with UI/UX team and prepare documentation.",
+          categories: ["Important ASAP", "Client Related"],
           dueDate: "2025-04-14",
           createdAt: "2025-04-02",
         },

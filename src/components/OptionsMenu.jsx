@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { MoreHorizontal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function OptionsMenu({ onEdit, onDelete }) {
+export default function OptionsMenu({ onEdit, onDelete,onReply, onShare }) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -53,6 +53,30 @@ export default function OptionsMenu({ onEdit, onDelete }) {
                 Delete
               </button>
             )}
+            {onShare && (
+              <button
+                onClick={() => {
+                  onShare();
+                  setOpen(false);
+                }}
+                disabled
+                className="block w-full px-4 py-2 hover:bg-red-100 text-left text-blue-600"
+              >
+                Share
+              </button>
+            )}
+            {onReply && (
+              <button
+                onClick={() => {
+                  onReply();
+                  setOpen(false);
+                }}
+                className="block w-full px-4 py-2 hover:bg-blue-100 text-left text-blue-600"
+              >
+                Reply
+              </button>
+            )}
+            
           </motion.div>
         )}
       </AnimatePresence>

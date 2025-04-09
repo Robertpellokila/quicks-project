@@ -4,6 +4,8 @@ export default function Message({
   message,
   onEdit,
   onDelete,
+  onReply,
+  onShare,
   bubbleColor,
   textColor,
 }) {
@@ -31,6 +33,12 @@ export default function Message({
           color: "black",
         }}
       >
+        {message.replyTo && (
+          <div className="mb-2 p-2 bg-white border-l-4 border-purple-300 text-xs rounded">
+            Reply to <strong>{message.replyTo.sender}</strong>: "
+            {message.replyTo.text}"
+          </div>
+        )}
         <p>{message.text}</p>
         <span className="block text-xs text-black mt-1">{message.time}</span>
 
@@ -39,7 +47,11 @@ export default function Message({
             isYou ? "left-[-36px]" : "right-[-36px]"
           }`}
         >
-          <OptionsMenu onEdit={onEdit} onDelete={onDelete} />
+          {isYou ? (
+            <OptionsMenu onEdit={onEdit} onDelete={onDelete} />
+          ) : (
+            <OptionsMenu onReply={onReply} onShare={onShare} />
+          )}
         </div>
       </div>
     </div>
