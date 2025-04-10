@@ -326,6 +326,14 @@ export default function PopupChat({
                         <Message
                           key={msg._globalIndex}
                           message={msg}
+                          bubbleColor={
+                            !isMe && msg.BubbleColor
+                              ? msg.BubbleColor
+                              : undefined
+                          }
+                          textColor={
+                            !isMe && msg.TextColor ? msg.TextColor : undefined
+                          }
                           onEdit={
                             isMe
                               ? () => handleEditMessage(msg._globalIndex)
