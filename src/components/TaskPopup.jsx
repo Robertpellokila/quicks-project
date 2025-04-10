@@ -27,15 +27,19 @@ export default function TaskPopup() {
     });
     return groupMap;
   });
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedTaskIds, setExpandedTaskIds] = useState([]);
   const [newTask, setNewTask] = useState({
     title: "",
-    dueDate: "",
+    dueDate: getTodayDate(),
     description: "",
   });
-  const [showForm, setShowForm] = useState(false);
+    const [showForm, setShowForm] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [editingDateTaskId, setEditingDateTaskId] = useState(null);
   const [completedTaskIds, setCompletedTaskIds] = useState([]);
@@ -168,7 +172,7 @@ export default function TaskPopup() {
                   });
 
                   const countdownText = isOverdue
-                    ? ` ${countdown} ago`
+                    ? `${countdown} ago`
                     : `${countdown} left`;
 
                   const isExpanded = expandedTaskIds.includes(task.id);
@@ -177,7 +181,7 @@ export default function TaskPopup() {
                   return (
                     <div
                       key={task.id}
-                      className="p-4 bg-white relative shadow border-b border-gray-600"
+                      className="p-4 bg-white relative shadow border-b border-gray-300 rounded-md"
                     >
                       <div className="flex justify-between items-start">
                         <div>
@@ -245,10 +249,7 @@ export default function TaskPopup() {
                               />
                             ) : (
                               <span className="text-sm text-gray-700">
-                                {format(
-                                  new Date(task.dueDate),
-                                  "dd/MM/yyyy"
-                                )}
+                                {format(new Date(task.dueDate), "dd/MM/yyyy")}
                               </span>
                             )}
                           </div>
@@ -285,7 +286,7 @@ export default function TaskPopup() {
                 })}
 
                 {showForm && (
-                  <div className="p-4 mb-4 bg-white shadow space-y-3">
+                  <div className="p-4 mb-4 bg-white shadow space-y-3 rounded-md border border-gray-300">
                     <div className="flex items-center gap-2">
                       <input
                         type="text"
@@ -299,9 +300,7 @@ export default function TaskPopup() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className="text-gray-600">
-                        <Clock className="w-4 h-4" />
-                      </span>
+                      <Clock className="w-4 h-4 text-gray-600" />
                       <input
                         type="date"
                         value={newTask.dueDate}
@@ -309,7 +308,6 @@ export default function TaskPopup() {
                           setNewTask({ ...newTask, dueDate: e.target.value })
                         }
                         className="border rounded px-3 py-1 text-sm text-gray-700"
-                        placeholder="Set Date..."
                       />
                     </div>
 
@@ -324,7 +322,7 @@ export default function TaskPopup() {
                             description: e.target.value,
                           })
                         }
-                        className="w-full px-2 py-1 text-sm"
+                        className="w-full px-2 py-1 text-sm border rounded"
                       />
                     </div>
                     {formError && (

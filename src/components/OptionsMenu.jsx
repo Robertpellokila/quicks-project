@@ -60,7 +60,7 @@ export default function OptionsMenu({ onEdit, onDelete,onReply, onShare }) {
                   setOpen(false);
                 }}
                 disabled
-                className="block w-full px-4 py-2 hover:bg-red-100 text-left text-blue-600"
+                className="block w-full px-4 py-2 hover:bg-blue-100 text-left text-blue-600"
               >
                 Share
               </button>

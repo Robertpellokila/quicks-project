@@ -6,7 +6,7 @@ export default function CustomModal({
   isOpen,
   title,
   description,
-  inputType = "textarea", // 'textarea', 'text', or null
+  inputType = "textarea",
   initialValue = "",
   confirmText = "OK",
   cancelText = "Cancel",

@@ -20,12 +20,12 @@ function LoadingSpinner() {
 
 function groupMessagesByDate(messages) {
   const grouped = {};
-  messages.forEach((msg) => {
+  messages.forEach((msg, index) => {
     const dateStr = msg.date || msg.datetime;
     if (!dateStr) return;
     const dateKey = new Date(dateStr).toDateString();
     if (!grouped[dateKey]) grouped[dateKey] = [];
-    grouped[dateKey].push(msg);
+    grouped[dateKey].push({ ...msg, _globalIndex: index });
   });
   return grouped;
 }
@@ -103,7 +103,7 @@ export default function PopupChat({
   const handleSend = () => {
     if (!newMessage.trim()) return;
     const now = new Date();
-  
+
     const newMsg = {
       sender: "You",
       text: newMessage,
@@ -113,7 +113,7 @@ export default function PopupChat({
       }),
       date: now.toISOString(),
     };
-  
+
     // Jika sedang reply
     if (replyTo) {
       newMsg.replyTo = {
@@ -121,14 +121,13 @@ export default function PopupChat({
         text: replyTo.text,
       };
     }
-  
+
     selectedChat.messages.push(newMsg);
     setNewMessage("");
     setReplyTo(null); // reset reply setelah kirim
     setShowNotification(true);
     setTimeout(() => setShowNotification(false), 3000);
   };
-  
 
   const handleEditMessage = (index) => setEditingIndex(index);
   const handleDeleteMessage = (index) => setDeletingIndex(index);
@@ -320,26 +319,22 @@ export default function PopupChat({
                       <div className="flex-grow border-t border-gray-900" />
                     </div>
 
-                    {messages.map((msg, index) => {
+                    {messages.map((msg) => {
                       const isMe = msg.sender === "You";
 
                       return (
                         <Message
-                          key={index}
+                          key={msg._globalIndex}
                           message={msg}
-                          bubbleColor={
-                            !isMe && msg.BubbleColor
-                              ? msg.BubbleColor
+                          onEdit={
+                            isMe
+                              ? () => handleEditMessage(msg._globalIndex)
                               : undefined
                           }
-                          textColor={
-                            !isMe && msg.TextColor ? msg.TextColor : undefined
-                          }
-                          onEdit={
-                            isMe ? () => handleEditMessage(index) : undefined
-                          }
                           onDelete={
-                            isMe ? () => handleDeleteMessage(index) : undefined
+                            isMe
+                              ? () => handleDeleteMessage(msg._globalIndex)
+                              : undefined
                           }
                           onReply={
                             !isMe ? () => handleReplyMessage(msg) : undefined
